@@ -1,5 +1,6 @@
 # compile_registry.R
-# Reads registry/cards.yaml, writes dashboard/data/cards.json.
+# Reads registry/cards.yaml, writes docs/data/cards.json and inlines the data
+# into docs/index.html (the GitHub Pages site root).
 # Run from the project root (merian-data-dashboard/):
 #   Rscript scripts/compile_registry.R
 
@@ -44,15 +45,15 @@ out <- list(
   cards = cards
 )
 
-dir.create(file.path(root, "dashboard/data"), recursive = TRUE, showWarnings = FALSE)
-jsonlite::write_json(out, file.path(root, "dashboard/data/cards.json"),
+dir.create(file.path(root, "docs/data"), recursive = TRUE, showWarnings = FALSE)
+jsonlite::write_json(out, file.path(root, "docs/data/cards.json"),
                      pretty = TRUE, auto_unbox = TRUE, null = "null")
 
-# Inline the data straight into dashboard/index.html between markers, so the
+# Inline the data straight into docs/index.html between markers, so the
 # dashboard is a single self-contained file that opens with a double-click
 # (no fetch / file:// CORS issues).
 json_str  <- jsonlite::toJSON(out, pretty = TRUE, auto_unbox = TRUE, null = "null")
-html_path <- file.path(root, "dashboard/index.html")
+html_path <- file.path(root, "docs/index.html")
 html      <- paste(readLines(html_path, warn = FALSE), collapse = "\n")
 start_tag <- "// >>>MERIAN_DATA_START<<<"
 end_tag   <- "// >>>MERIAN_DATA_END<<<"
@@ -71,4 +72,4 @@ if (i < 0 || j < 0) {
   writeLines(new_html, html_path)
 }
 
-cat("Wrote", length(cards), "cards to dashboard/data/cards.json and inlined into dashboard/index.html\n")
+cat("Wrote", length(cards), "cards to docs/data/cards.json and inlined into docs/index.html\n")

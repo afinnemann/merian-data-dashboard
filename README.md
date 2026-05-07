@@ -18,8 +18,8 @@ merian-data-dashboard/
 ├── README.md                          # this file
 ├── schema/dataset_card.schema.json    # card schema, validates registry entries
 ├── registry/cards.yaml                # the 7 seed cards (human-edited)
-├── dashboard/
-│   ├── index.html                     # stripped fork of the CLIHEALTH dashboard
+├── docs/                              # GitHub Pages site root
+│   ├── index.html                     # self-contained dashboard (data inlined)
 │   └── data/cards.json                # compiled from cards.yaml (machine view)
 ├── scripts/
 │   ├── compile_registry.R             # YAML -> JSON for the dashboard

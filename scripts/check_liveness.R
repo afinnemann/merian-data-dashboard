@@ -1,5 +1,5 @@
 # check_liveness.R
-# Pings every card's `url` and writes dashboard/data/status.json with HTTP status per id.
+# Pings every card's `url` and writes docs/data/status.json with HTTP status per id.
 # Run: Rscript scripts/check_liveness.R
 
 library(yaml)
@@ -32,8 +32,8 @@ out <- list(
   results = results
 )
 
-dir.create("dashboard/data", recursive = TRUE, showWarnings = FALSE)
-jsonlite::write_json(out, "dashboard/data/status.json",
+dir.create("docs/data", recursive = TRUE, showWarnings = FALSE)
+jsonlite::write_json(out, "docs/data/status.json",
                      pretty = TRUE, auto_unbox = TRUE)
 
 cat("Wrote liveness status for", length(results), "cards\n")
