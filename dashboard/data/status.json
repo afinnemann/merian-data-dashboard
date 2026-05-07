@@ -1,0 +1,51 @@
+[
+  {
+    "id": "clh-br-0001",
+    "url": "https://qualar.cetesb.sp.gov.br",
+    "http_status": 200,
+    "error": null,
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-br-0002",
+    "url": "https://sites.ufpe.br/lampe/br-dwgd/",
+    "http_status": null,
+    "error": "SSLError",
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-br-0003",
+    "url": "https://www.chc.ucsb.edu/data/chirps",
+    "http_status": 200,
+    "error": null,
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-br-0007",
+    "url": "https://datasus.saude.gov.br/transferencia-de-arquivos/",
+    "http_status": 200,
+    "error": null,
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-nl-0001",
+    "url": "https://www.luchtmeetnet.nl/open-data",
+    "http_status": 404,
+    "error": null,
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-nl-0002",
+    "url": "https://www.knmi.nl/nederland-nu/klimatologie/daggegevens",
+    "http_status": 200,
+    "error": null,
+    "checked_at": "2026-05-07T19:23:24Z"
+  },
+  {
+    "id": "clh-nl-0007",
+    "url": "https://opendata.cbs.nl/statline/#/CBS/nl/dataset/70895NED/table",
+    "http_status": null,
+    "error": "ConnectTimeout",
+    "checked_at": "2026-05-07T19:23:24Z"
+  }
+]

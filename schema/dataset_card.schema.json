@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merian.uch-nexus.org/schemas/dataset_card.schema.json",
+  "title": "Merian dataset card v0.1",
+  "type": "object",
+  "required": [
+    "id", "title", "country", "domain", "purpose",
+    "variables", "spatial_resolution", "temporal_resolution",
+    "period", "extent", "url", "licence_spdx", "access_method",
+    "auth_required", "curated_by", "last_verified", "snippet_r"
+  ],
+  "properties": {
+    "id":                  { "type": "string", "pattern": "^clh-(br|nl)-[0-9]{4}$" },
+    "title":               { "type": "string" },
+    "country":             { "enum": ["BR", "NL", "Global"] },
+    "domain":              { "enum": ["pollution", "heat", "rain", "health", "land_cover"] },
+    "status":              { "enum": ["stable", "experimental", "deprecated"], "default": "stable" },
+    "purpose":             { "type": "string", "maxLength": 160 },
+    "variables":           { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "spatial_resolution":  { "type": "string" },
+    "temporal_resolution": { "type": "string" },
+    "period":              { "type": "string" },
+    "extent":              { "type": "string" },
+    "url":                 { "type": "string", "format": "uri" },
+    "doi":                 { "type": ["string", "null"] },
+    "licence_spdx":        { "type": "string" },
+    "attribution_text":    { "type": "string" },
+    "access_method":       { "enum": ["http_direct", "api_token", "registration_required", "cds", "package", "request_form", "restricted"] },
+    "auth_required":       { "type": "boolean" },
+    "auth_instructions":   { "type": ["string", "null"] },
+    "r_package":           { "type": ["string", "null"] },
+    "linkable_to":         { "type": "array", "items": { "type": "string" }, "default": [] },
+    "curated_by":          { "type": "string" },
+    "reviewed_by":         { "type": ["string", "null"] },
+    "last_verified":       { "type": "string", "format": "date" },
+    "next_review_date":    { "type": ["string", "null"], "format": "date" },
+    "snippet_r":           { "type": "string", "minLength": 20 },
+    "gotchas":             { "type": ["string", "null"] },
+    "expected_runtime":    { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

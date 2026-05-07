@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merian Environmental Data — Starter set v0.1</title>
+<style>
+:root {
+  --dark-blue: #335c67;
+  --light-yellow: #fff3b0;
+  --golden: #e09f3e;
+  --red: #9e2a2b;
+  --dark-red: #540b0e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--dark-blue);
+  background: #f8f9fa;
+  display: flex; flex-direction: column; min-height: 100vh;
+  font-size: 14px;
+}
+.header {
+  background: var(--dark-blue);
+  color: white;
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
+.header h1 .ver { color: var(--golden); font-weight: 500; margin-left: 8px; font-size: 13px; }
+.header .right { font-size: 12px; opacity: 0.9; }
+.banner {
+  background: var(--light-yellow);
+  color: var(--dark-red);
+  padding: 8px 24px;
+  font-size: 13px;
+  border-bottom: 1px solid #e6d98c;
+}
+.banner b { color: var(--dark-red); }
+.main { display: flex; flex: 1; overflow: hidden; }
+.sidebar {
+  width: 220px;
+  background: var(--dark-blue);
+  color: white;
+  overflow-y: auto;
+  padding-top: 12px;
+}
+.sidebar-group { margin-bottom: 6px; }
+.sidebar-group-label {
+  padding: 10px 16px 4px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  opacity: 0.55;
+}
+.sidebar-link {
+  display: block;
+  padding: 7px 16px 7px 22px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+.sidebar-link:hover { background: rgba(255,255,255,0.08); color: white; }
+.sidebar-link.active {
+  background: rgba(255,255,255,0.12);
+  border-left-color: var(--golden);
+  font-weight: 600;
+  color: white;
+}
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; max-width: 1100px; }
+.hero {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+}
+.hero h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+.hero p { color: #555; line-height: 1.55; margin-bottom: 8px; }
+.hero .stats {
+  display: flex; gap: 24px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed #e0e0e0;
+  font-size: 12px; color: #666;
+}
+.hero .stats b { color: var(--dark-blue); font-size: 14px; display: block; }
+.filters {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-btn {
+  background: white; color: var(--dark-blue);
+  border: 1px solid #cfd6d8;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.filter-btn:hover { border-color: var(--golden); }
+.filter-btn.active {
+  background: var(--dark-blue); color: white; border-color: var(--dark-blue);
+}
+.cards { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  transition: box-shadow 0.15s;
+}
+.card:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+.card-head {
+  display: flex; align-items: baseline; gap: 10px;
+  flex-wrap: wrap;
+}
+.card-head h3 { font-size: 16px; font-weight: 600; }
+.card-id { font-family: monospace; font-size: 11px; color: #888; }
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.chip-flag { background: var(--light-yellow); color: var(--dark-red); }
+.chip-domain { background: #eef2f3; color: var(--dark-blue); }
+.chip-access-open { background: #e1f0e3; color: #2c6e3a; }
+.chip-access-auth { background: #fde9c8; color: #8a5a18; }
+.chip-access-restricted { background: #fbe1e2; color: var(--dark-red); }
+.card-purpose { color: #444; margin: 8px 0 6px; line-height: 1.5; }
+.card-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  font-size: 12px; color: #555;
+  margin-top: 8px;
+}
+.card-meta dt { font-weight: 600; color: #777; }
+.card-actions {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.btn {
+  background: var(--dark-blue); color: white;
+  padding: 5px 12px;
+  border: 0; border-radius: 4px;
+  font-size: 12px; cursor: pointer;
+  text-decoration: none; display: inline-block;
+}
+.btn:hover { background: #264751; }
+.btn-secondary { background: white; color: var(--dark-blue); border: 1px solid var(--dark-blue); }
+.btn-secondary:hover { background: #eef2f3; }
+.drawer { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e0e0e0; }
+.drawer.open { display: block; }
+.drawer h4 { font-size: 12px; text-transform: uppercase; color: #777; margin: 10px 0 4px; letter-spacing: 0.5px; }
+.drawer pre {
+  background: #1d3a40; color: #fff3b0;
+  padding: 10px 12px; border-radius: 4px;
+  font-size: 12px; overflow-x: auto; line-height: 1.5;
+}
+.drawer p, .drawer li { font-size: 12.5px; color: #444; line-height: 1.55; }
+.drawer ul { padding-left: 18px; margin: 4px 0; }
+.foot {
+  font-size: 11.5px; color: #777;
+  padding: 18px 28px; text-align: center;
+  border-top: 1px solid #e0e0e0; background: #f0f0f2;
+}
+.foot a { color: var(--dark-blue); }
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Merian Environmental Data <span class="ver">Starter set v0.1 — prototype</span></h1>
+  <div class="right">UCH-Nexus · NWO/FAPESP Merian 2026–2031</div>
+</div>
+
+<div class="banner">
+  <b>Prototype.</b> Seven seed cards built before consortium consultation. Source list, framing, and metadata fields will be revised after the four sister consortia have given feedback. Snippet liveness CI is on the v0.2 roadmap.
+</div>
+
+<div class="main">
+
+  <nav class="sidebar">
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Country</div>
+      <a class="sidebar-link active" data-filter="country" data-value="all">All</a>
+      <a class="sidebar-link" data-filter="country" data-value="BR">Brazil</a>
+      <a class="sidebar-link" data-filter="country" data-value="NL">Netherlands</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Domain</div>
+      <a class="sidebar-link" data-filter="domain" data-value="pollution">Air pollution</a>
+      <a class="sidebar-link" data-filter="domain" data-value="heat">Heat &amp; climate</a>
+      <a class="sidebar-link" data-filter="domain" data-value="rain">Rain</a>
+      <a class="sidebar-link" data-filter="domain" data-value="health">Health outcomes</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">About</div>
+      <a class="sidebar-link" href="#about">What this is</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <section class="hero" id="about">
+      <h2>What this is</h2>
+      <p>A starter set of high-quality environmental and health datasets covering São Paulo and the Netherlands, with copy-pasteable R snippets for downloading a small illustrative slice. Built as a prototype for discussion within the five NWO/FAPESP Merian "Extreme Heat and Water Events" consortia.</p>
+      <p>Use a card to find authoritative source links, scan resolution and licence at a glance, and run the snippet to verify the data is what you need before committing to a full pipeline.</p>
+      <div class="stats">
+        <div><b id="stat-cards">7</b>seed cards</div>
+        <div><b>2</b>countries</div>
+        <div><b id="stat-updated">2026-05-07</b>last updated</div>
+      </div>
+    </section>
+
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-domain="all">All domains</button>
+      <button class="filter-btn" data-domain="pollution">Air pollution</button>
+      <button class="filter-btn" data-domain="heat">Heat &amp; climate</button>
+      <button class="filter-btn" data-domain="rain">Rain</button>
+      <button class="filter-btn" data-domain="health">Health outcomes</button>
+    </div>
+
+    <div id="cards" class="cards"><p style="color:#888">Loading cards…</p></div>
+  </main>
+
+</div>
+
+<div class="foot">
+  Maintainer: Adam Finnemann (UvA) · Backup: TBD · Next review: after first consortium feedback round
+  · <a href="https://github.com/" target="_blank" rel="noopener">repo</a>
+</div>
+
+<!-- DATA: regenerated by scripts/compile_registry.R; do not hand-edit between the markers -->
+<script>
+// >>>MERIAN_DATA_START<<<
+window.MERIAN_DATA = {
+  "generated_at": "2026-05-07T16:29:00-0300",
+  "version": "0.1.0",
+  "cards": [
+    {
+      "id": "clh-br-0001",
+      "title": "CETESB QUALAR",
+      "country": "BR",
+      "domain": "pollution",
+      "status": "stable",
+      "purpose": "São Paulo state air-quality monitoring network, hourly station data.",
+      "variables": [
+        "PM2.5",
+        "PM10",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO"
+      ],
+      "spatial_resolution": "station",
+      "temporal_resolution": "hourly",
+      "period": "2000-present",
+      "extent": "São Paulo state (~70 stations)",
+      "url": "https://qualar.cetesb.sp.gov.br",
+      "doi": null,
+      "licence_spdx": "LicenseRef-CETESB",
+      "attribution_text": "CETESB. Sistema QUALAR. https://qualar.cetesb.sp.gov.br",
+      "access_method": "registration_required",
+      "auth_required": true,
+      "auth_instructions": "Free account at qualar.cetesb.sp.gov.br; CSV export per station/pollutant.",
+      "r_package": "qualR",
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# CETESB QUALAR — São Paulo air-quality station data.\n# Requires a free account at qualar.cetesb.sp.gov.br; do not commit credentials.\nlibrary(qualR)\n\n# Pull PM2.5 from Pinheiros station (code 99) for January 2024.\npm25 <- cetesb_retrieve_param(\n  username   = Sys.getenv(\"QUALAR_USER\"),\n  password   = Sys.getenv(\"QUALAR_PASS\"),\n  parameters = \"MP2.5\",\n  aqs_code   = \"99\",\n  start_date = \"01/01/2024\",\n  end_date   = \"31/01/2024\"\n)\n\nhead(pm25)\n",
+      "gotchas": "Free QUALAR account required; one parameter × station × time-window per call and the portal is rate-limited.",
+      "expected_runtime": "5-30 s for one station-month"
+    },
+    {
+      "id": "clh-br-0002",
+      "title": "BR-DWGD (Xavier et al.)",
+      "country": "BR",
+      "domain": "heat",
+      "purpose": "Gridded daily Brazilian temperature and precipitation, 0.1° (~10 km), 1961–present.",
+      "variables": [
+        "tmax",
+        "tmin",
+        "tmean",
+        "precip"
+      ],
+      "spatial_resolution": "0.1° (~10 km)",
+      "temporal_resolution": "daily",
+      "period": "1961-present",
+      "extent": "All of Brazil",
+      "url": "https://sites.ufpe.br/lampe/br-dwgd/",
+      "doi": "10.1002/joc.7012",
+      "licence_spdx": "CC-BY-4.0",
+      "attribution_text": "Xavier et al. (2022) BR-DWGD. doi:10.1002/joc.7012",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# BR-DWGD — gridded daily T and precip for Brazil (Xavier et al. 2022).\n# Distributed as yearly NetCDFs per variable on the LAMPE/UFPE site.\nlibrary(httr2)\nlibrary(terra)\n\n# Replace with the current per-variable-per-year URL from sites.ufpe.br/lampe/br-dwgd/\nurl <- \"https://sites.ufpe.br/lampe/wp-content/uploads/sites/8/br-dwgd/tmax_2020.nc\"\nnc  <- tempfile(fileext = \".nc\")\nrequest(url) |> req_perform(path = nc)\n\n# Read tmax 2020 and crop to a São Paulo bbox; pull a single day (layer 1).\ntmax    <- terra::rast(nc)\ntmax_sp <- terra::crop(tmax[[1]], terra::ext(-53, -44, -25, -19))\n\nsummary(terra::values(tmax_sp))\n",
+      "gotchas": "URLs change with each Zenodo / LAMPE release and downloads are per-variable-per-year, so a full national run is heavy.",
+      "expected_runtime": "30-90 s to download one variable-year NetCDF on a typical home connection"
+    },
+    {
+      "id": "clh-br-0003",
+      "title": "CHIRPS rainfall",
+      "country": "BR",
+      "domain": "rain",
+      "purpose": "Global daily ~5 km satellite + gauge precipitation; well-validated for South America.",
+      "variables": [
+        "precip"
+      ],
+      "spatial_resolution": "0.05° (~5 km)",
+      "temporal_resolution": "daily",
+      "period": "1981-present",
+      "extent": "Global land 50°S–50°N",
+      "url": "https://www.chc.ucsb.edu/data/chirps",
+      "doi": "10.1038/sdata.2015.66",
+      "licence_spdx": "CC0-1.0",
+      "attribution_text": "Funk et al. (2015) CHIRPS. doi:10.1038/sdata.2015.66",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": "chirps",
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# CHIRPS — global ~5 km daily satellite + gauge precipitation.\n# The `chirps` package wraps the UCSB ClimateSERV API.\nlibrary(chirps)\n\n# Two points around São Paulo city; one week of daily rainfall (mm/day).\nsp_pts <- data.frame(\n  lon = c(-46.8, -46.4),\n  lat = c(-23.7, -23.4)\n)\nrain <- get_chirps(\n  object = sp_pts,\n  dates  = c(\"2024-01-01\", \"2024-01-07\"),\n  server = \"ClimateSERV\"\n)\n\nhead(rain)\n",
+      "gotchas": "Values are mm/day; the ClimateSERV server throttles large requests, and the `object` argument expects an sf or data.frame with lon/lat columns.",
+      "expected_runtime": "10-30 s for two points × one week via ClimateSERV"
+    },
+    {
+      "id": "clh-br-0007",
+      "title": "DATASUS SIH (hospital admissions)",
+      "country": "BR",
+      "domain": "health",
+      "purpose": "Brazilian public-system hospital admissions (AIH) by ICD-10 chapter, municipality, month.",
+      "variables": [
+        "n_admissions",
+        "n_deaths_in_hospital",
+        "length_of_stay"
+      ],
+      "spatial_resolution": "municipality",
+      "temporal_resolution": "monthly",
+      "period": "1992-present",
+      "extent": "All Brazil (SUS network)",
+      "url": "https://datasus.saude.gov.br/transferencia-de-arquivos/",
+      "doi": null,
+      "licence_spdx": "LicenseRef-DATASUS",
+      "attribution_text": "Ministério da Saúde / DATASUS — SIH/SUS",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": "microdatasus",
+      "linkable_to": [
+        "clh-br-0001",
+        "clh-br-0002",
+        "clh-br-0003"
+      ],
+      "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# DATASUS SIH — Brazilian SUS hospital admissions (AIH-RD).\n# `microdatasus` downloads the DBC files and parses them into a tibble.\nlibrary(microdatasus)\nlibrary(dplyr)\n\n# Fetch São Paulo (SP), January 2024 reduced AIH file.\nsih_sp <- fetch_datasus(\n  year_start  = 2024, year_end  = 2024,\n  month_start = 1,    month_end = 1,\n  uf          = \"SP\",\n  information_system = \"SIH-RD\"\n) |> process_sih()\n\n# Count admissions by ICD-10 letter root (rough chapter proxy).\nsih_sp |>\n  dplyr::group_by(icd_letter = substr(DIAG_PRINC, 1, 1)) |>\n  dplyr::summarise(n_admissions = dplyr::n()) |>\n  head()\n",
+      "gotchas": "Public AIH-RD is anonymised but still record-level; ICD-10 chapter assignment needs a proper crosswalk (here we use the first letter as a quick proxy only).",
+      "expected_runtime": "1-3 min per state-month for SIH-RD download + parse"
+    },
+    {
+      "id": "clh-nl-0001",
+      "title": "RIVM Luchtmeetnet",
+      "country": "NL",
+      "domain": "pollution",
+      "purpose": "Dutch national air-quality monitoring network, real-time + historical, open API.",
+      "variables": [
+        "PM2.5",
+        "PM10",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO",
+        "BC"
+      ],
+      "spatial_resolution": "station",
+      "temporal_resolution": "hourly",
+      "period": "2013-present",
+      "extent": "Netherlands (~80 stations)",
+      "url": "https://www.luchtmeetnet.nl/open-data",
+      "doi": null,
+      "licence_spdx": "CC-BY-4.0",
+      "attribution_text": "RIVM. Luchtmeetnet open data. https://www.luchtmeetnet.nl",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-nl-0007"
+      ],
+      "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# RIVM Luchtmeetnet — Dutch national air-quality network, open REST API.\n# Station codes are strings like \"NL49017\"; no API key required.\nlibrary(httr2)\nlibrary(dplyr)\n\n# Fetch hourly NO2 for Amsterdam-Vondelpark (NL49017), 15 Jan 2024.\nresp <- request(\"https://api.luchtmeetnet.nl/open_api/measurements\") |>\n  req_url_query(\n    station_number = \"NL49017\",\n    formula        = \"NO2\",\n    start          = \"2024-01-15T00:00:00\",\n    end            = \"2024-01-15T23:59:59\",\n    page           = 1\n  ) |>\n  req_perform() |>\n  resp_body_json()\n\n# resp$data is a list of hourly records; bind into a tidy tibble.\nmeas <- dplyr::bind_rows(resp$data)\nhead(meas)\n",
+      "gotchas": "Default page size is 100 records — add pagination if requesting multi-day windows; station codes are zero-padded strings (e.g. 'NL49017'), not integers.",
+      "expected_runtime": "3-8 s for one station-day"
+    },
+    {
+      "id": "clh-nl-0002",
+      "title": "KNMI station data (Daggegevens)",
+      "country": "NL",
+      "domain": "heat",
+      "purpose": "KNMI official meteorological station records, daily, automated stations across the Netherlands.",
+      "variables": [
+        "tmax",
+        "tmin",
+        "tmean",
+        "precip",
+        "humidity",
+        "wind"
+      ],
+      "spatial_resolution": "station",
+      "temporal_resolution": "daily (hourly available separately)",
+      "period": "1901-present (varies by station)",
+      "extent": "Netherlands (~50 active stations)",
+      "url": "https://www.knmi.nl/nederland-nu/klimatologie/daggegevens",
+      "doi": null,
+      "licence_spdx": "CC-BY-4.0",
+      "attribution_text": "KNMI. Daggegevens van het weer in Nederland.",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-nl-0007"
+      ],
+      "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# KNMI Daggegevens — official Dutch daily meteorology via POST request.\n# Station codes are 3-digit integers (260 = De Bilt); values in 0.1 units.\nlibrary(httr2)\n\nraw <- request(\"https://www.daggegevens.knmi.nl/klimatologie/daggegevens\") |>\n  req_method(\"POST\") |>\n  req_body_form(\n    stns = \"260\", vars = \"TG:TX:TN:RH\",\n    byear = \"2024\", bmonth = \"1\", bday = \"1\",\n    eyear = \"2024\", emonth = \"1\", eday = \"1\"\n  ) |>\n  req_perform() |>\n  resp_body_string()\n\n# Response has \"#\"-prefixed comment lines; last such line (STN,YYYYMMDD,...) holds column names.\nlines     <- strsplit(raw, \"\\n\")[[1]]\nhdr       <- sub(\"^# *\", \"\", grep(\"^# *STN,\", lines, value = TRUE)[1])\ncol_names <- trimws(strsplit(hdr, \",\")[[1]])\ndata_csv  <- paste(lines[!grepl(\"^#|^\\\\s*$\", lines)], collapse = \"\\n\")\ndf <- read.csv(text = data_csv, header = FALSE, col.names = col_names,\n               strip.white = TRUE)\n# Note: TG/TX/TN are in 0.1 °C; RH (precip sum) is in 0.1 mm.\nhead(df)\n",
+      "gotchas": "All numeric values are in 0.1 units (°C, mm) — divide by 10 before analysis; station IDs are plain integers, not text codes.",
+      "expected_runtime": "5-10 s for one station-month via POST"
+    },
+    {
+      "id": "clh-nl-0007",
+      "title": "CBS Doodsoorzakenstatistiek",
+      "country": "NL",
+      "domain": "health",
+      "purpose": "Dutch national cause-of-death statistics, by ICD-10 cause, week or month, age, sex.",
+      "variables": [
+        "deaths_by_cause"
+      ],
+      "spatial_resolution": "national / regional",
+      "temporal_resolution": "weekly / monthly",
+      "period": "1995-present",
+      "extent": "Netherlands",
+      "url": "https://opendata.cbs.nl/statline/#/CBS/nl/dataset/70895NED/table",
+      "doi": null,
+      "licence_spdx": "CC-BY-4.0",
+      "attribution_text": "CBS. Doodsoorzaken; geslacht en leeftijd (StatLine, 70895NED). https://opendata.cbs.nl",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": "cbsodataR",
+      "linkable_to": [
+        "clh-nl-0001",
+        "clh-nl-0002"
+      ],
+      "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-07",
+      "next_review_date": null,
+      "snippet_r": "# CBS Doodsoorzakenstatistiek — Dutch cause-of-death via cbsodataR.\n# Table 70895NED supersedes the older 7233. Verify with cbs_get_toc() if in doubt.\nlibrary(cbsodataR)\nlibrary(dplyr)\n\n# Optional discovery step: uncomment to confirm current table ID.\n# cbs_get_toc(Language = \"nl\") |> dplyr::filter(grepl(\"doodsoorzaak\", tolower(Title)))\n\n# Inspect metadata once to understand available filter codes and dimensions.\nmeta <- cbs_get_meta(\"70895NED\")\n\n# Fetch 2022 annual totals; annual periods contain \"JJ\" in their code.\ndeaths <- cbs_get_data(\n  \"70895NED\",\n  Perioden = has_substring(\"2022JJ\"),\n  select    = c(\"Perioden\", \"Geslacht\", \"DoodsoorzaakICDCode\", \"Overledenen_1\")\n)\n\n# T001038 = totaal geslacht (both sexes combined).\ndeaths |> dplyr::filter(Geslacht == \"T001038\") |> head()\n",
+      "gotchas": "CBS suppresses counts below a confidentiality threshold (~5–10), so small-cause regional cells will be NA; old table 7233 is superseded — use 70895NED.",
+      "expected_runtime": "10-25 s for one annual slice"
+    }
+  ]
+};
+// >>>MERIAN_DATA_END<<<
+</script>
+<script>
+const ACCESS_LABEL = {
+  http_direct: "open",
+  api_token: "API key",
+  registration_required: "registration",
+  cds: "Copernicus CDS",
+  package: "R package",
+  request_form: "form",
+  restricted: "restricted"
+};
+const ACCESS_CHIP = {
+  http_direct: "chip-access-open",
+  api_token: "chip-access-auth",
+  registration_required: "chip-access-auth",
+  cds: "chip-access-auth",
+  package: "chip-access-open",
+  request_form: "chip-access-restricted",
+  restricted: "chip-access-restricted"
+};
+
+let DATA = null;
+let activeCountry = "all";
+let activeDomain = "all";
+
+async function load() {
+  // Prefer the script-tag-loaded global (works under file://);
+  // fall back to fetch for the case when the dashboard is served via http.
+  if (window.MERIAN_DATA) {
+    DATA = window.MERIAN_DATA;
+  } else {
+    try {
+      const res = await fetch("data/cards.json");
+      DATA = await res.json();
+    } catch (e) {
+      document.getElementById("cards").innerHTML =
+        '<p style="color:#9e2a2b">No cards data found — run scripts/compile_registry.R, then reload.</p>';
+      return;
+    }
+  }
+  document.getElementById("stat-cards").textContent = DATA.cards.length;
+  document.getElementById("stat-updated").textContent =
+    (DATA.generated_at || "").slice(0, 10);
+  render();
+}
+
+function render() {
+  const root = document.getElementById("cards");
+  const cards = DATA.cards.filter(c =>
+    (activeCountry === "all" || c.country === activeCountry) &&
+    (activeDomain === "all" || c.domain === activeDomain)
+  );
+  if (!cards.length) {
+    root.innerHTML = '<p style="color:#888">No cards match. Try clearing filters.</p>';
+    return;
+  }
+  root.innerHTML = cards.map(cardHTML).join("");
+  // wire drawer toggles
+  root.querySelectorAll(".btn-toggle").forEach(b => {
+    b.addEventListener("click", () => {
+      const d = b.parentElement.parentElement.querySelector(".drawer");
+      d.classList.toggle("open");
+      b.textContent = d.classList.contains("open") ? "Hide details" : "Show details";
+    });
+  });
+}
+
+// R's jsonlite::toJSON(auto_unbox=TRUE) collapses single-element arrays to
+// scalars, so linkable_to / variables can come through as either a string or
+// an array. Normalise to an array.
+function asArray(v) {
+  if (Array.isArray(v)) return v;
+  if (v == null) return [];
+  return [v];
+}
+
+function cardHTML(c) {
+  const accessClass = ACCESS_CHIP[c.access_method] || "chip-domain";
+  const accessLabel = ACCESS_LABEL[c.access_method] || c.access_method;
+  const flag = c.country === "BR" ? "🇧🇷 Brazil" : c.country === "NL" ? "🇳🇱 Netherlands" : "Global";
+  const snippet = (c.snippet_r || "").trim();
+  const variables  = asArray(c.variables);
+  const linkableTo = asArray(c.linkable_to);
+  const linkable = linkableTo.length
+    ? `<dt>Joins to</dt><dd>${linkableTo.join(", ")}</dd>` : "";
+  return `
+    <article class="card" data-id="${c.id}">
+      <div class="card-head">
+        <h3>${c.title}</h3>
+        <span class="card-id">${c.id}</span>
+        <span class="chip chip-flag">${flag}</span>
+        <span class="chip chip-domain">${c.domain}</span>
+        <span class="chip ${accessClass}">${accessLabel}</span>
+      </div>
+      <p class="card-purpose">${c.purpose}</p>
+      <dl class="card-meta">
+        <dt>Variables</dt><dd>${variables.join(", ")}</dd>
+        <dt>Resolution</dt><dd>${c.spatial_resolution} · ${c.temporal_resolution}</dd>
+        <dt>Period</dt><dd>${c.period}</dd>
+        <dt>Licence</dt><dd>${c.licence_spdx}</dd>
+      </dl>
+      <div class="card-actions">
+        <a class="btn" href="${c.url}" target="_blank" rel="noopener">Download source ↗</a>
+        <button class="btn btn-secondary btn-toggle">Show details</button>
+      </div>
+      <div class="drawer">
+        <h4>R snippet</h4>
+        <pre>${escapeHtml(snippet || "# snippet pending — generator agent will fill")}</pre>
+        ${c.gotchas ? `<h4>Gotchas</h4><p>${escapeHtml(c.gotchas)}</p>` : ""}
+        <h4>Provenance</h4>
+        <dl class="card-meta">
+          <dt>Curated by</dt><dd>${c.curated_by || "—"}</dd>
+          <dt>Reviewed by</dt><dd>${c.reviewed_by || "—"}</dd>
+          <dt>Last verified</dt><dd>${c.last_verified || "—"}</dd>
+          <dt>Attribution</dt><dd>${escapeHtml(c.attribution_text || "—")}</dd>
+          ${linkable}
+        </dl>
+      </div>
+    </article>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+
+// sidebar wiring
+document.querySelectorAll('[data-filter="country"]').forEach(a => {
+  a.addEventListener("click", () => {
+    document.querySelectorAll('[data-filter="country"]').forEach(x => x.classList.remove("active"));
+    a.classList.add("active");
+    activeCountry = a.dataset.value;
+    render();
+  });
+});
+document.querySelectorAll('[data-filter="domain"]').forEach(a => {
+  a.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+    const btn = document.querySelector(`.filter-btn[data-domain="${a.dataset.value}"]`);
+    if (btn) btn.classList.add("active");
+    activeDomain = a.dataset.value;
+    render();
+  });
+});
+document.querySelectorAll(".filter-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    activeDomain = b.dataset.domain;
+    render();
+  });
+});
+
+load();
+</script>
+</body>
+</html>

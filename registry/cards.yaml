@@ -1,0 +1,329 @@
+# Merian dataset cards — Starter set v0.1 (prototype)
+#
+# Each entry validates against schema/dataset_card.schema.json
+# Stable IDs: clh-br-0001…  clh-nl-0001…  (never reused, never renumbered)
+#
+# This file is human-edited. compile_registry.R turns it into dashboard/data/cards.json.
+
+cards:
+
+  # -------- Brazil -------------------------------------------------------
+
+  - id: clh-br-0001
+    title: CETESB QUALAR
+    country: BR
+    domain: pollution
+    status: stable
+    purpose: "São Paulo state air-quality monitoring network, hourly station data."
+    variables: [PM2.5, PM10, NO2, O3, SO2, CO]
+    spatial_resolution: station
+    temporal_resolution: hourly
+    period: "2000-present"
+    extent: "São Paulo state (~70 stations)"
+    url: "https://qualar.cetesb.sp.gov.br"
+    doi: null
+    licence_spdx: "LicenseRef-CETESB"
+    attribution_text: "CETESB. Sistema QUALAR. https://qualar.cetesb.sp.gov.br"
+    access_method: registration_required
+    auth_required: true
+    auth_instructions: "Free account at qualar.cetesb.sp.gov.br; CSV export per station/pollutant."
+    r_package: "qualR"
+    linkable_to: ["clh-br-0007"]
+    curated_by: "BR Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # CETESB QUALAR — São Paulo air-quality station data.
+      # Requires a free account at qualar.cetesb.sp.gov.br; do not commit credentials.
+      library(qualR)
+
+      # Pull PM2.5 from Pinheiros station (code 99) for January 2024.
+      pm25 <- cetesb_retrieve_param(
+        username   = Sys.getenv("QUALAR_USER"),
+        password   = Sys.getenv("QUALAR_PASS"),
+        parameters = "MP2.5",
+        aqs_code   = "99",
+        start_date = "01/01/2024",
+        end_date   = "31/01/2024"
+      )
+
+      head(pm25)
+    gotchas: "Free QUALAR account required; one parameter × station × time-window per call and the portal is rate-limited."
+    expected_runtime: "5-30 s for one station-month"
+
+  - id: clh-br-0002
+    title: BR-DWGD (Xavier et al.)
+    country: BR
+    domain: heat
+    purpose: "Gridded daily Brazilian temperature and precipitation, 0.1° (~10 km), 1961–present."
+    variables: [tmax, tmin, tmean, precip]
+    spatial_resolution: "0.1° (~10 km)"
+    temporal_resolution: daily
+    period: "1961-present"
+    extent: "All of Brazil"
+    url: "https://sites.ufpe.br/lampe/br-dwgd/"
+    doi: "10.1002/joc.7012"
+    licence_spdx: "CC-BY-4.0"
+    attribution_text: "Xavier et al. (2022) BR-DWGD. doi:10.1002/joc.7012"
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: null
+    linkable_to: ["clh-br-0007"]
+    curated_by: "BR Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # BR-DWGD — gridded daily T and precip for Brazil (Xavier et al. 2022).
+      # Distributed as yearly NetCDFs per variable on the LAMPE/UFPE site.
+      library(httr2)
+      library(terra)
+
+      # Replace with the current per-variable-per-year URL from sites.ufpe.br/lampe/br-dwgd/
+      url <- "https://sites.ufpe.br/lampe/wp-content/uploads/sites/8/br-dwgd/tmax_2020.nc"
+      nc  <- tempfile(fileext = ".nc")
+      request(url) |> req_perform(path = nc)
+
+      # Read tmax 2020 and crop to a São Paulo bbox; pull a single day (layer 1).
+      tmax    <- terra::rast(nc)
+      tmax_sp <- terra::crop(tmax[[1]], terra::ext(-53, -44, -25, -19))
+
+      summary(terra::values(tmax_sp))
+    gotchas: "URLs change with each Zenodo / LAMPE release and downloads are per-variable-per-year, so a full national run is heavy."
+    expected_runtime: "30-90 s to download one variable-year NetCDF on a typical home connection"
+
+  - id: clh-br-0003
+    title: CHIRPS rainfall
+    country: BR
+    domain: rain
+    purpose: "Global daily ~5 km satellite + gauge precipitation; well-validated for South America."
+    variables: [precip]
+    spatial_resolution: "0.05° (~5 km)"
+    temporal_resolution: daily
+    period: "1981-present"
+    extent: "Global land 50°S–50°N"
+    url: "https://www.chc.ucsb.edu/data/chirps"
+    doi: "10.1038/sdata.2015.66"
+    licence_spdx: "CC0-1.0"
+    attribution_text: "Funk et al. (2015) CHIRPS. doi:10.1038/sdata.2015.66"
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: "chirps"
+    linkable_to: ["clh-br-0007"]
+    curated_by: "BR Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # CHIRPS — global ~5 km daily satellite + gauge precipitation.
+      # The `chirps` package wraps the UCSB ClimateSERV API.
+      library(chirps)
+
+      # Two points around São Paulo city; one week of daily rainfall (mm/day).
+      sp_pts <- data.frame(
+        lon = c(-46.8, -46.4),
+        lat = c(-23.7, -23.4)
+      )
+      rain <- get_chirps(
+        object = sp_pts,
+        dates  = c("2024-01-01", "2024-01-07"),
+        server = "ClimateSERV"
+      )
+
+      head(rain)
+    gotchas: "Values are mm/day; the ClimateSERV server throttles large requests, and the `object` argument expects an sf or data.frame with lon/lat columns."
+    expected_runtime: "10-30 s for two points × one week via ClimateSERV"
+
+  - id: clh-br-0007
+    title: DATASUS SIH (hospital admissions)
+    country: BR
+    domain: health
+    purpose: "Brazilian public-system hospital admissions (AIH) by ICD-10 chapter, municipality, month."
+    variables: [n_admissions, n_deaths_in_hospital, length_of_stay]
+    spatial_resolution: municipality
+    temporal_resolution: monthly
+    period: "1992-present"
+    extent: "All Brazil (SUS network)"
+    url: "https://datasus.saude.gov.br/transferencia-de-arquivos/"
+    doi: null
+    licence_spdx: "LicenseRef-DATASUS"
+    attribution_text: "Ministério da Saúde / DATASUS — SIH/SUS"
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: "microdatasus"
+    linkable_to: ["clh-br-0001", "clh-br-0002", "clh-br-0003"]
+    curated_by: "BR Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # DATASUS SIH — Brazilian SUS hospital admissions (AIH-RD).
+      # `microdatasus` downloads the DBC files and parses them into a tibble.
+      library(microdatasus)
+      library(dplyr)
+
+      # Fetch São Paulo (SP), January 2024 reduced AIH file.
+      sih_sp <- fetch_datasus(
+        year_start  = 2024, year_end  = 2024,
+        month_start = 1,    month_end = 1,
+        uf          = "SP",
+        information_system = "SIH-RD"
+      ) |> process_sih()
+
+      # Count admissions by ICD-10 letter root (rough chapter proxy).
+      sih_sp |>
+        dplyr::group_by(icd_letter = substr(DIAG_PRINC, 1, 1)) |>
+        dplyr::summarise(n_admissions = dplyr::n()) |>
+        head()
+    gotchas: "Public AIH-RD is anonymised but still record-level; ICD-10 chapter assignment needs a proper crosswalk (here we use the first letter as a quick proxy only)."
+    expected_runtime: "1-3 min per state-month for SIH-RD download + parse"
+
+  # -------- Netherlands -------------------------------------------------
+
+  - id: clh-nl-0001
+    title: RIVM Luchtmeetnet
+    country: NL
+    domain: pollution
+    purpose: "Dutch national air-quality monitoring network, real-time + historical, open API."
+    variables: [PM2.5, PM10, NO2, O3, SO2, CO, BC]
+    spatial_resolution: station
+    temporal_resolution: hourly
+    period: "2013-present"
+    extent: "Netherlands (~80 stations)"
+    url: "https://www.luchtmeetnet.nl/open-data"
+    doi: null
+    licence_spdx: "CC-BY-4.0"
+    attribution_text: "RIVM. Luchtmeetnet open data. https://www.luchtmeetnet.nl"
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: null
+    linkable_to: ["clh-nl-0007"]
+    curated_by: "NL Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # RIVM Luchtmeetnet — Dutch national air-quality network, open REST API.
+      # Station codes are strings like "NL49017"; no API key required.
+      library(httr2)
+      library(dplyr)
+
+      # Fetch hourly NO2 for Amsterdam-Vondelpark (NL49017), 15 Jan 2024.
+      resp <- request("https://api.luchtmeetnet.nl/open_api/measurements") |>
+        req_url_query(
+          station_number = "NL49017",
+          formula        = "NO2",
+          start          = "2024-01-15T00:00:00",
+          end            = "2024-01-15T23:59:59",
+          page           = 1
+        ) |>
+        req_perform() |>
+        resp_body_json()
+
+      # resp$data is a list of hourly records; bind into a tidy tibble.
+      meas <- dplyr::bind_rows(resp$data)
+      head(meas)
+    gotchas: "Default page size is 100 records — add pagination if requesting multi-day windows; station codes are zero-padded strings (e.g. 'NL49017'), not integers."
+    expected_runtime: "3-8 s for one station-day"
+
+  - id: clh-nl-0002
+    title: KNMI station data (Daggegevens)
+    country: NL
+    domain: heat
+    purpose: "KNMI official meteorological station records, daily, automated stations across the Netherlands."
+    variables: [tmax, tmin, tmean, precip, humidity, wind]
+    spatial_resolution: station
+    temporal_resolution: "daily (hourly available separately)"
+    period: "1901-present (varies by station)"
+    extent: "Netherlands (~50 active stations)"
+    url: "https://www.knmi.nl/nederland-nu/klimatologie/daggegevens"
+    doi: null
+    licence_spdx: "CC-BY-4.0"
+    attribution_text: "KNMI. Daggegevens van het weer in Nederland."
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: null
+    linkable_to: ["clh-nl-0007"]
+    curated_by: "NL Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # KNMI Daggegevens — official Dutch daily meteorology via POST request.
+      # Station codes are 3-digit integers (260 = De Bilt); values in 0.1 units.
+      library(httr2)
+
+      raw <- request("https://www.daggegevens.knmi.nl/klimatologie/daggegevens") |>
+        req_method("POST") |>
+        req_body_form(
+          stns = "260", vars = "TG:TX:TN:RH",
+          byear = "2024", bmonth = "1", bday = "1",
+          eyear = "2024", emonth = "1", eday = "1"
+        ) |>
+        req_perform() |>
+        resp_body_string()
+
+      # Response has "#"-prefixed comment lines; last such line (STN,YYYYMMDD,...) holds column names.
+      lines     <- strsplit(raw, "\n")[[1]]
+      hdr       <- sub("^# *", "", grep("^# *STN,", lines, value = TRUE)[1])
+      col_names <- trimws(strsplit(hdr, ",")[[1]])
+      data_csv  <- paste(lines[!grepl("^#|^\\s*$", lines)], collapse = "\n")
+      df <- read.csv(text = data_csv, header = FALSE, col.names = col_names,
+                     strip.white = TRUE)
+      # Note: TG/TX/TN are in 0.1 °C; RH (precip sum) is in 0.1 mm.
+      head(df)
+    gotchas: "All numeric values are in 0.1 units (°C, mm) — divide by 10 before analysis; station IDs are plain integers, not text codes."
+    expected_runtime: "5-10 s for one station-month via POST"
+
+  - id: clh-nl-0007
+    title: CBS Doodsoorzakenstatistiek
+    country: NL
+    domain: health
+    purpose: "Dutch national cause-of-death statistics, by ICD-10 cause, week or month, age, sex."
+    variables: [deaths_by_cause]
+    spatial_resolution: "national / regional"
+    temporal_resolution: "weekly / monthly"
+    period: "1995-present"
+    extent: "Netherlands"
+    url: "https://opendata.cbs.nl/statline/#/CBS/nl/dataset/70895NED/table"
+    doi: null
+    licence_spdx: "CC-BY-4.0"
+    attribution_text: "CBS. Doodsoorzaken; geslacht en leeftijd (StatLine, 70895NED). https://opendata.cbs.nl"
+    access_method: http_direct
+    auth_required: false
+    auth_instructions: null
+    r_package: "cbsodataR"
+    linkable_to: ["clh-nl-0001", "clh-nl-0002"]
+    curated_by: "NL Generator agent (scheduled run, 2026-05-07)"
+    reviewed_by: "pending consortium consultation"
+    last_verified: "2026-05-07"
+    next_review_date: null
+    snippet_r: |
+      # CBS Doodsoorzakenstatistiek — Dutch cause-of-death via cbsodataR.
+      # Table 70895NED supersedes the older 7233. Verify with cbs_get_toc() if in doubt.
+      library(cbsodataR)
+      library(dplyr)
+
+      # Optional discovery step: uncomment to confirm current table ID.
+      # cbs_get_toc(Language = "nl") |> dplyr::filter(grepl("doodsoorzaak", tolower(Title)))
+
+      # Inspect metadata once to understand available filter codes and dimensions.
+      meta <- cbs_get_meta("70895NED")
+
+      # Fetch 2022 annual totals; annual periods contain "JJ" in their code.
+      deaths <- cbs_get_data(
+        "70895NED",
+        Perioden = has_substring("2022JJ"),
+        select    = c("Perioden", "Geslacht", "DoodsoorzaakICDCode", "Overledenen_1")
+      )
+
+      # T001038 = totaal geslacht (both sexes combined).
+      deaths |> dplyr::filter(Geslacht == "T001038") |> head()
+    gotchas: "CBS suppresses counts below a confidentiality threshold (~5–10), so small-cause regional cells will be NA; old table 7233 is superseded — use 70895NED."
+    expected_runtime: "10-25 s for one annual slice"
