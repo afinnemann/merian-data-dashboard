@@ -179,26 +179,6 @@ body {
 
 <div class="main">
 
-  <nav class="sidebar">
-    <div class="sidebar-group">
-      <div class="sidebar-group-label">Country</div>
-      <a class="sidebar-link active" data-filter="country" data-value="all">All</a>
-      <a class="sidebar-link" data-filter="country" data-value="BR">Brazil</a>
-      <a class="sidebar-link" data-filter="country" data-value="NL">Netherlands</a>
-    </div>
-    <div class="sidebar-group">
-      <div class="sidebar-group-label">Domain</div>
-      <a class="sidebar-link" data-filter="domain" data-value="pollution">Air pollution</a>
-      <a class="sidebar-link" data-filter="domain" data-value="heat">Heat &amp; climate</a>
-      <a class="sidebar-link" data-filter="domain" data-value="rain">Rain</a>
-      <a class="sidebar-link" data-filter="domain" data-value="health">Health outcomes</a>
-    </div>
-    <div class="sidebar-group">
-      <div class="sidebar-group-label">About</div>
-      <a class="sidebar-link" href="#about">What this is</a>
-    </div>
-  </nav>
-
   <main class="content">
     <section class="hero" id="about">
       <h2>What this is</h2>
@@ -206,11 +186,17 @@ body {
       <p>Built for the five NWO/FAPESP "Extreme Heat and Water Events" consortia (2026–2031), to support shared dataset discovery across the partner teams.</p>
       <p>Use the cards to locate authoritative sources, compare temporal and spatial resolution, period of coverage, and licence at a glance, and trace which environmental datasets can be joined to health-outcome anchors. Filter by country or domain to narrow the view. Each card also includes a short R snippet for fetching a small illustrative slice.</p>
       <div class="stats">
-        <div><b id="stat-cards">7</b>seed cards</div>
+        <div><b id="stat-cards">7</b>datasets</div>
         <div><b>2</b>countries</div>
         <div><b id="stat-updated">2026-05-07</b>last updated</div>
       </div>
     </section>
+
+    <div class="filters">
+      <button class="filter-btn country-btn active" data-country="all">All countries</button>
+      <button class="filter-btn country-btn" data-country="BR">Brazil</button>
+      <button class="filter-btn country-btn" data-country="NL">Netherlands</button>
+    </div>
 
     <div class="filters" id="filters">
       <button class="filter-btn active" data-domain="all">All domains</button>
@@ -730,27 +716,18 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 }
 
-// sidebar wiring
-document.querySelectorAll('[data-filter="country"]').forEach(a => {
-  a.addEventListener("click", () => {
-    document.querySelectorAll('[data-filter="country"]').forEach(x => x.classList.remove("active"));
-    a.classList.add("active");
-    activeCountry = a.dataset.value;
-    render();
-  });
-});
-document.querySelectorAll('[data-filter="domain"]').forEach(a => {
-  a.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
-    const btn = document.querySelector(`.filter-btn[data-domain="${a.dataset.value}"]`);
-    if (btn) btn.classList.add("active");
-    activeDomain = a.dataset.value;
-    render();
-  });
-});
-document.querySelectorAll(".filter-btn").forEach(b => {
+// Filter wiring — country and domain buttons act independently.
+document.querySelectorAll(".country-btn").forEach(b => {
   b.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".country-btn").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    activeCountry = b.dataset.country;
+    render();
+  });
+});
+document.querySelectorAll(".filter-btn[data-domain]").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn[data-domain]").forEach(x => x.classList.remove("active"));
     b.classList.add("active");
     activeDomain = b.dataset.domain;
     render();
