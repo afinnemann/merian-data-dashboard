@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-07T16:29:00-0300",
+  "generated_at": "2026-05-08T10:54:24+0000",
   "version": "0.1.0",
   "cards": [
     {
@@ -9,7 +9,14 @@
       "domain": "pollution",
       "status": "stable",
       "purpose": "São Paulo state air-quality monitoring network, hourly station data.",
-      "variables": ["PM2.5", "PM10", "NO2", "O3", "SO2", "CO"],
+      "variables": [
+        "PM2.5",
+        "PM10",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO"
+      ],
       "spatial_resolution": "station",
       "temporal_resolution": "hourly",
       "period": "2000-present",
@@ -20,9 +27,11 @@
       "attribution_text": "CETESB. Sistema QUALAR. https://qualar.cetesb.sp.gov.br",
       "access_method": "registration_required",
       "auth_required": true,
-      "auth_instructions": "Free account at qualar.cetesb.sp.gov.br; CSV export per station/pollutant.",
+      "auth_instructions": "Free account at qualar.cetesb.sp.gov.br; CSV export per station/pollutant. Station codes are listed on the CETESB station map: https://arcgis.cetesb.sp.gov.br/portal/apps/experiencebuilder/experience/?id=13582bb92885456fb9f10ee84ad1507e",
       "r_package": "qualR",
-      "linkable_to": "clh-br-0007",
+      "linkable_to": [
+        "clh-br-0007"
+      ],
       "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -37,7 +46,12 @@
       "country": "BR",
       "domain": "heat",
       "purpose": "Gridded daily Brazilian temperature and precipitation, 0.1° (~10 km), 1961–present.",
-      "variables": ["tmax", "tmin", "tmean", "precip"],
+      "variables": [
+        "tmax",
+        "tmin",
+        "tmean",
+        "precip"
+      ],
       "spatial_resolution": "0.1° (~10 km)",
       "temporal_resolution": "daily",
       "period": "1961-present",
@@ -50,7 +64,9 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": null,
-      "linkable_to": "clh-br-0007",
+      "linkable_to": [
+        "clh-br-0007"
+      ],
       "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -65,7 +81,9 @@
       "country": "BR",
       "domain": "rain",
       "purpose": "Global daily ~5 km satellite + gauge precipitation; well-validated for South America.",
-      "variables": "precip",
+      "variables": [
+        "precip"
+      ],
       "spatial_resolution": "0.05° (~5 km)",
       "temporal_resolution": "daily",
       "period": "1981-present",
@@ -78,7 +96,9 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": "chirps",
-      "linkable_to": "clh-br-0007",
+      "linkable_to": [
+        "clh-br-0007"
+      ],
       "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -88,12 +108,128 @@
       "expected_runtime": "10-30 s for two points × one week via ClimateSERV"
     },
     {
+      "id": "clh-br-0004",
+      "title": "MMA Monitorar (federal AQ portal)",
+      "country": "BR",
+      "domain": "pollution",
+      "purpose": "Federal Brazilian air-quality portal aggregating state-level monitoring networks into one map view.",
+      "variables": [
+        "PM2.5",
+        "PM10",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO"
+      ],
+      "spatial_resolution": "station",
+      "temporal_resolution": "hourly",
+      "period": "2020-present (varies by state network)",
+      "extent": "Brazilian states reporting to the federal aggregator",
+      "url": "https://monitorar.mma.gov.br/mapa",
+      "doi": null,
+      "licence_spdx": "LicenseRef-MMA",
+      "attribution_text": "Ministério do Meio Ambiente — Monitorar. https://monitorar.mma.gov.br",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "Adam Finnemann (UvA), via Prof. Maria de Fátima Andrade (IAG/USP), 2026-05-07",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-08",
+      "next_review_date": null,
+      "snippet_r": "# MMA Monitorar — federal Brazilian air-quality aggregator.\n# The /mapa view is a Leaflet/ArcGIS app; the data API behind it is\n# not yet publicly documented, so this snippet only confirms the\n# portal is reachable. Inspect the network tab on a real visit to\n# find the station-data endpoint, then update this snippet.\nlibrary(httr2)\n\nresp <- request(\"https://monitorar.mma.gov.br/mapa\") |> req_perform()\nresp_status(resp)\n",
+      "gotchas": "New federal portal; no stable public data API yet documented. Use this card as a discoverability link until the underlying endpoint is identified.",
+      "expected_runtime": "1-3 s for a portal liveness check"
+    },
+    {
+      "id": "clh-br-0005",
+      "title": "Rio de Janeiro daily AQ bulletins",
+      "country": "BR",
+      "domain": "pollution",
+      "purpose": "Daily air-quality bulletins published by the Rio de Janeiro prefecture for the city's monitoring stations.",
+      "variables": [
+        "PM10",
+        "PM2.5",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO"
+      ],
+      "spatial_resolution": "Rio de Janeiro city (~10 stations)",
+      "temporal_resolution": "daily",
+      "period": "2010-present",
+      "extent": "City of Rio de Janeiro",
+      "url": "https://ambienteclima.prefeitura.rio/monitoramento-diario-da-qualidade-do-ar/boletins-diarios-2026/",
+      "doi": null,
+      "licence_spdx": "LicenseRef-RioPrefecture",
+      "attribution_text": "Prefeitura do Rio de Janeiro — Secretaria Municipal de Meio Ambiente e Clima. Boletins diários da qualidade do ar.",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "Adam Finnemann (UvA), via Prof. Maria de Fátima Andrade (IAG/USP), 2026-05-07",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-08",
+      "next_review_date": null,
+      "snippet_r": "# Rio de Janeiro daily AQ bulletins — issued as PDFs on the prefecture's\n# site. This snippet scrapes the bulletin index page and lists the\n# available PDF links for the current year.\nlibrary(rvest)\n\nurl  <- \"https://ambienteclima.prefeitura.rio/monitoramento-diario-da-qualidade-do-ar/boletins-diarios-2026/\"\npdfs <- read_html(url) |>\n  html_elements(\"a[href$='.pdf']\") |>\n  html_attr(\"href\")\n\nhead(pdfs)\n",
+      "gotchas": "Bulletins are PDFs intended for human reading; for raw numerical data check the prefecture's downloadable spreadsheets linked from the same site.",
+      "expected_runtime": "2-5 s to fetch and parse the bulletin index"
+    },
+    {
+      "id": "clh-br-0006",
+      "title": "INMET historical meteorology",
+      "country": "BR",
+      "domain": "heat",
+      "purpose": "National Institute of Meteorology archive — hourly station temperature, precipitation, humidity, wind, pressure.",
+      "variables": [
+        "tmax",
+        "tmin",
+        "tmean",
+        "precip",
+        "humidity",
+        "wind",
+        "pressure"
+      ],
+      "spatial_resolution": "station (~600 automated stations)",
+      "temporal_resolution": "hourly (daily aggregates also available)",
+      "period": "2000-present (varies by station)",
+      "extent": "All Brazilian states",
+      "url": "https://portal.inmet.gov.br/dadoshistoricos",
+      "doi": null,
+      "licence_spdx": "LicenseRef-INMET",
+      "attribution_text": "INMET — Instituto Nacional de Meteorologia. Banco de Dados Meteorológicos.",
+      "access_method": "http_direct",
+      "auth_required": false,
+      "auth_instructions": null,
+      "r_package": null,
+      "linkable_to": [
+        "clh-br-0007"
+      ],
+      "curated_by": "Adam Finnemann (UvA), via Prof. Maria de Fátima Andrade (IAG/USP), 2026-05-07",
+      "reviewed_by": "pending consortium consultation",
+      "last_verified": "2026-05-08",
+      "next_review_date": null,
+      "snippet_r": "# INMET historical meteorology — distributed as one ZIP per year\n# containing one CSV per station. Replace the year with the latest\n# available on portal.inmet.gov.br/dadoshistoricos.\nlibrary(httr2)\n\nurl <- \"https://portal.inmet.gov.br/uploads/dadoshistoricos/2024.zip\"\nzip <- tempfile(fileext = \".zip\")\nrequest(url) |> req_perform(path = zip)\n\n# List a few station CSVs to confirm the download.\nfiles <- unzip(zip, list = TRUE)\nhead(files)\n",
+      "gotchas": "Year-zips are large (hundreds of MB). Each CSV uses ';' separators, decimal comma, and an 8-line header that must be skipped before parsing.",
+      "expected_runtime": "30-90 s per year-zip on a typical home connection"
+    },
+    {
       "id": "clh-br-0007",
       "title": "DATASUS SIH (hospital admissions)",
       "country": "BR",
       "domain": "health",
       "purpose": "Brazilian public-system hospital admissions (AIH) by ICD-10 chapter, municipality, month.",
-      "variables": ["n_admissions", "n_deaths_in_hospital", "length_of_stay"],
+      "variables": [
+        "n_admissions",
+        "n_deaths_in_hospital",
+        "length_of_stay"
+      ],
       "spatial_resolution": "municipality",
       "temporal_resolution": "monthly",
       "period": "1992-present",
@@ -106,7 +242,14 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": "microdatasus",
-      "linkable_to": ["clh-br-0001", "clh-br-0002", "clh-br-0003"],
+      "linkable_to": [
+        "clh-br-0001",
+        "clh-br-0002",
+        "clh-br-0003",
+        "clh-br-0004",
+        "clh-br-0005",
+        "clh-br-0006"
+      ],
       "curated_by": "BR Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -121,7 +264,15 @@
       "country": "NL",
       "domain": "pollution",
       "purpose": "Dutch national air-quality monitoring network, real-time + historical, open API.",
-      "variables": ["PM2.5", "PM10", "NO2", "O3", "SO2", "CO", "BC"],
+      "variables": [
+        "PM2.5",
+        "PM10",
+        "NO2",
+        "O3",
+        "SO2",
+        "CO",
+        "BC"
+      ],
       "spatial_resolution": "station",
       "temporal_resolution": "hourly",
       "period": "2013-present",
@@ -134,7 +285,9 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": null,
-      "linkable_to": "clh-nl-0007",
+      "linkable_to": [
+        "clh-nl-0007"
+      ],
       "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -149,7 +302,14 @@
       "country": "NL",
       "domain": "heat",
       "purpose": "KNMI official meteorological station records, daily, automated stations across the Netherlands.",
-      "variables": ["tmax", "tmin", "tmean", "precip", "humidity", "wind"],
+      "variables": [
+        "tmax",
+        "tmin",
+        "tmean",
+        "precip",
+        "humidity",
+        "wind"
+      ],
       "spatial_resolution": "station",
       "temporal_resolution": "daily (hourly available separately)",
       "period": "1901-present (varies by station)",
@@ -162,7 +322,9 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": null,
-      "linkable_to": "clh-nl-0007",
+      "linkable_to": [
+        "clh-nl-0007"
+      ],
       "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
@@ -177,7 +339,9 @@
       "country": "NL",
       "domain": "health",
       "purpose": "Dutch national cause-of-death statistics, by ICD-10 cause, week or month, age, sex.",
-      "variables": "deaths_by_cause",
+      "variables": [
+        "deaths_by_cause"
+      ],
       "spatial_resolution": "national / regional",
       "temporal_resolution": "weekly / monthly",
       "period": "1995-present",
@@ -190,7 +354,10 @@
       "auth_required": false,
       "auth_instructions": null,
       "r_package": "cbsodataR",
-      "linkable_to": ["clh-nl-0001", "clh-nl-0002"],
+      "linkable_to": [
+        "clh-nl-0001",
+        "clh-nl-0002"
+      ],
       "curated_by": "NL Generator agent (scheduled run, 2026-05-07)",
       "reviewed_by": "pending consortium consultation",
       "last_verified": "2026-05-07",
